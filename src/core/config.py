@@ -11,8 +11,14 @@ class Settings(BaseSettings):
     def workflow_path(self) -> Path:
         return self.project_root / "workflow"
     
+    @property
+    def skills_path(self) -> Path:
+        return self.workflow_path / "skills"
+    
     context_window: int = 128000
     temperature: float = 1
+    
+    file_read_max_mb: float = 20
     
     model_config = SettingsConfigDict(
         env_file=".env",
