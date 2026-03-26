@@ -3,10 +3,12 @@ from pathlib import Path
 from typing import List
 
 from pydantic import BaseModel
+from pydantic_ai import ModelRetry
 from pydantic_ai.exceptions import AgentRunError
 
 from core.agent import agent
 from core.config import settings
+from core.security import validate_path
 
 class PathType(enum.Enum):
     FILE = 'file'
@@ -20,29 +22,6 @@ class ListWorkflowResult(BaseModel):
     files: List[WorkflowPath]
     directories: List[WorkflowPath]
 
-
-def validate_path(path_in_workflow: WorkflowPath) -> Path:
-    root_path = settings.workflow_path.resolve()
-    input_path = path_in_workflow.path
-    
-    if str(input_path) == '/' or str(input_path) == '.':
-        work_path = root_path
-    
-    elif input_path.is_absolute():
-        if input_path.is_relative_to(root_path):
-            work_path = input_path
-        else:
-            raise AgentRunError(f"Access denied: Path {input_path} is outside workflow directory.")
-    
-    else:
-        work_path = root_path / input_path
-
-    work_path = work_path.resolve()
-    if not work_path.is_relative_to(root_path):
-        raise AgentRunError(f"Path traversal detected: {work_path}")
-    
-    return work_path
-
 @agent.tool_plain
 def list_workflow_path(path_in_workflow: WorkflowPath) -> ListWorkflowResult:
     """List files and directories inside specified workflow directory
@@ -51,7 +30,7 @@ def list_workflow_path(path_in_workflow: WorkflowPath) -> ListWorkflowResult:
         path_in_workflow: Path to the directory inside the workflow to list files and directories from
     """
     
-    work_path = validate_path(path_in_workflow)
+    work_path = validate_path(path_in_workflow.path)
 
     if not work_path.is_dir():
         raise AgentRunError(f"Specified path is not a directory: {work_path}")
@@ -75,5 +54,16 @@ def read_workflow_file(path_in_workflow: WorkflowPath) -> str:
         path_in_workflow: Path to the file inside the workflow to read from
     """
     
-    work_path = validate_path(path_in_workflow)
-    pass
+    work_path = validate_path(path_in_workflow.path)
+    
+    if not work_path.is_file():
+        raise ModelRetry(f"Specified path is not a file: {work_path}")
+    
+    size_in_bytes = work_path.stat().st_size
+    size_in_mb = size_in_bytes / (1024 * 1024)
+    
+    if size_in_mb > settings.file_read_max_mb:
+        raise AgentRunError(f"Specified file size {size_in_mb}MB is larger than a limit: {settings.file_read_max_mb}")
+    
+    with open(work_path, "r") as file:
+        return file.read()
