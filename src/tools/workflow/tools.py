@@ -9,18 +9,8 @@ from pydantic_ai.exceptions import AgentRunError
 from core.agent import agent
 from core.config import settings
 from core.security import validate_path
+from tools.workflow.models import ListWorkflowResult, PathType, WorkflowPath
 
-class PathType(enum.Enum):
-    FILE = 'file'
-    DIR = 'directory'
-
-class WorkflowPath(BaseModel):
-    path: Path
-    type: PathType
-    
-class ListWorkflowResult(BaseModel):
-    files: List[WorkflowPath]
-    directories: List[WorkflowPath]
 
 @agent.tool_plain
 def list_workflow_path(path_in_workflow: WorkflowPath) -> ListWorkflowResult:

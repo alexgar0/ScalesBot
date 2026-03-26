@@ -1,8 +1,8 @@
 
 from core.agent import agent
 from core.deps import AgentDependencies
-from tools.workflow import read
-from tools.skills import skill_manager
+from tools.workflow import tools
+from tools.skills import tools
 
 def main() -> None:
     deps = AgentDependencies()
