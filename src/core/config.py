@@ -3,8 +3,8 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    context_window = 128000
-    temperature = 1
+    context_window: int = 128000
+    temperature: float = 1
     
     
     model_config = SettingsConfigDict(
