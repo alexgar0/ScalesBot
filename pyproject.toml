@@ -14,7 +14,6 @@ start = "core.main:main"
 [tool.mypy]
 python_version = "3.13"
 strict = true
-plugins = ["sqlalchemy.ext.mypy.plugin"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
