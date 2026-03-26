@@ -7,6 +7,7 @@ from core.config import settings
 from tools.skills.deps import SkillDeps
 from tools.skills.models import Skill
 
+
 @agent.tool_plain
 def list_skills() -> List[str]:
     """Loads the list of names of all available skills"""
@@ -15,43 +16,47 @@ def list_skills() -> List[str]:
     for x in settings.skills_path.iterdir():
         if x.is_dir():
             result.append(x.name)
-            
+
     return result
-    
+
 
 @agent.tool
 def load_skill(ctx: RunContext[SkillDeps], skill_name: str) -> Skill:
     """
     Loads instructions and references for the specified skill.
     Use this tool if the user's task requires specialized knowledge.
-    
+
     Args:
         skill_name: The name of the skill (for example, 'email_writer').
     """
-    
+
     skill_path = settings.skills_path / skill_name
-    
+
     if not skill_path.is_dir():
         raise ModelRetry(f"The skill {skill_name} is not existing")
-    
+
     skill_description: Optional[str] = None
     references = []
-    
+
     for item in skill_path.rglob("*"):
         if item.is_file():
             size_in_bytes = item.stat().st_size
             size_in_mb = size_in_bytes / (1024 * 1024)
-            
+
             if size_in_mb > settings.file_read_max_mb:
                 continue
-            
+
             with open(item, "r") as file:
                 if item.name.lower() == "skill.md":
                     skill_description = file.read()
                 else:
                     references.append(file.read())
-                    
+
     if not skill_description:
         raise ModelRetry(f"Unable to load skill {skill_name}")
-    
-    return Skill(skill_name=skill_name, skill_description=skill_description, references=references)
+
+    return Skill(
+        skill_name=skill_name,
+        skill_description=skill_description,
+        references=references,
+    )

@@ -10,7 +10,9 @@ agent = Agent(
     OpenAIChatModel(
         "",
         provider=OpenAIProvider(base_url="http://localhost:8080/v1"),
-        settings=ModelSettings(temperature=settings.temperature, max_tokens=settings.context_window),
+        settings=ModelSettings(
+            temperature=settings.temperature, max_tokens=settings.context_window
+        ),
     ),
-    deps_type=AgentDependencies
+    deps_type=AgentDependencies,
 )
