@@ -48,9 +48,9 @@ def load_skill(ctx: RunContext[SkillDeps], skill_name: str) -> Skill:
             
             with open(item, "r") as file:
                 if item.name.lower() == "skill.md":
-                    skill_description = item.read_text()
+                    skill_description = file.read()
                 else:
-                    references.append(item.read_text())
+                    references.append(file.read())
                     
     if not skill_description:
         raise ModelRetry(f"Unable to load skill {skill_name}")
