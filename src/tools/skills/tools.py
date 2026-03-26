@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-from pydantic import BaseModel
 from pydantic_ai import ModelRetry, RunContext
 
 from core.agent import agent
