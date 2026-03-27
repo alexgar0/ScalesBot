@@ -86,3 +86,106 @@ def read_workflow_image(path_to_image: WorkflowPath) -> BinaryContent:
         image_data = file.read()
         
     return BinaryContent(data=image_data, media_type='image/png')
+
+@agent.tool_plain
+def create_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
+    """Creates a new file in the workflow directory with the specified content.
+    Fails if the file already exists.
+
+    Args:
+        path_in_workflow: Path for the new file inside the workflow.
+        content: The text content to write into the file.
+    """
+
+    work_path = validate_path(path_in_workflow.path)
+
+    if work_path.exists():
+        raise ModelRetry(
+            f"File already exists at {work_path}. "
+            "Use 'edit_workflow_file' to modify existing files."
+        )
+
+    content_size_mb = len(content.encode('utf-8')) / (1024 * 1024)
+    if content_size_mb > settings.file_read_max_mb:
+        raise AgentRunError(
+            f"Content size {content_size_mb:.2f}MB exceeds the limit of {settings.file_read_max_mb}MB."
+        )
+
+    work_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        work_path.write_text(content, encoding='utf-8')
+        return f"File created successfully at: {work_path.relative_to(settings.workflow_path)}"
+    except Exception as e:
+        raise AgentRunError(f"Failed to create file: {str(e)}")
+    
+@agent.tool_plain
+def edit_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
+    """Edits (overwrites) an existing file in the workflow directory.
+    Fails if the file does not exist.
+
+    Args:
+        path_in_workflow: Path to the existing file inside the workflow.
+        content: The new text content to write into the file.
+    """
+
+    work_path = validate_path(path_in_workflow.path)
+
+    if not work_path.exists():
+        raise ModelRetry(
+            f"File does not exist at {work_path}. "
+            "Use 'create_workflow_file' to create new files."
+        )
+
+    if not work_path.is_file():
+        raise ModelRetry(f"Specified path is not a file: {work_path}")
+
+    content_size_mb = len(content.encode('utf-8')) / (1024 * 1024)
+    if content_size_mb > settings.file_read_max_mb:
+        raise AgentRunError(
+            f"Content size {content_size_mb:.2f}MB exceeds the limit of {settings.file_read_max_mb}MB."
+        )
+
+    try:
+        work_path.write_text(content, encoding='utf-8')
+        return f"File updated successfully at: {work_path.relative_to(settings.workflow_path)}"
+    except Exception as e:
+        raise AgentRunError(f"Failed to edit file: {str(e)}")
+    
+@agent.tool_plain
+def extend_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
+    """Appends content to the end of an existing file in the workflow directory.
+    Does not overwrite existing content. Fails if the file does not exist.
+
+    Args:
+        path_in_workflow: Path to the existing file inside the workflow.
+        content: The text content to append to the file.
+    """
+
+    work_path = validate_path(path_in_workflow.path)
+
+    if not work_path.exists():
+        raise ModelRetry(
+            f"File does not exist at {work_path}. "
+            "Use 'create_workflow_file' to create new files."
+        )
+
+    if not work_path.is_file():
+        raise ModelRetry(f"Specified path is not a file: {work_path}")
+
+    current_size_bytes = work_path.stat().st_size
+    add_size_bytes = len(content.encode('utf-8'))
+    total_size_mb = (current_size_bytes + add_size_bytes) / (1024 * 1024)
+
+    if total_size_mb > settings.file_read_max_mb:
+        raise AgentRunError(
+            f"Appending this content would exceed the file size limit ({settings.file_read_max_mb}MB). "
+            f"Resulting size would be {total_size_mb:.2f}MB."
+        )
+
+    try:
+        with open(work_path, 'a', encoding='utf-8') as f:
+            f.write(content)
+        return f"Content appended successfully to: {work_path.relative_to(settings.workflow_path)}"
+    except Exception as e:
+        raise AgentRunError(f"Failed to append to file: {str(e)}")
