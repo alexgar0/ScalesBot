@@ -1,4 +1,5 @@
-from typing import List
+import re
+from typing import List, Optional
 
 from pydantic_ai import BinaryContent, ModelRetry
 from pydantic_ai.exceptions import AgentRunError
@@ -193,3 +194,69 @@ def extend_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
         return f"Content appended successfully to: {work_path.relative_to(settings.workflow_path)}"
     except Exception as e:
         raise AgentRunError(f"Failed to append to file: {str(e)}")
+
+
+@agent.tool_plain
+def replace_workflow_pattern(
+    path_in_workflow: WorkflowPath, 
+    pattern: str, 
+    replacement: str, 
+    count: Optional[int] = None
+) -> str:
+    """
+    Replaces text in a workflow file using a regex pattern.
+    Use this to update specific parts of a file without rewriting the entire file.
+    You must use this as a priority over `edit_workflow_file` if the edit is small or easy.
+
+    Args:
+        path_in_workflow: Path to the file inside the workflow.
+        pattern: The regex pattern to search for. 
+                 (e.g., 'old_function' or 'def\\s+foo'). 
+                 Be careful with escaping backslashes in strings.
+        replacement: The text to replace the pattern with.
+        count: Optional. The maximum number of pattern occurrences to replace.
+               If None (default), replaces all occurrences.
+    """
+
+    work_path = validate_path(path_in_workflow.path)
+
+    if not work_path.exists():
+        raise ModelRetry(f"File does not exist: {work_path}")
+    
+    if not work_path.is_file():
+        raise ModelRetry(f"Specified path is not a file: {work_path}")
+
+    try:
+        original_content = work_path.read_text(encoding='utf-8')
+
+        new_content, replacements_made = re.subn(
+            pattern, 
+            replacement, 
+            original_content, 
+            count=count or 0, 
+            flags=re.MULTILINE
+        )
+
+        if replacements_made == 0:
+            raise ModelRetry(
+                f"Pattern not found in file. No replacements made. "
+                f"Please check your regex pattern: `{pattern}`"
+            )
+
+        new_size_mb = len(new_content.encode('utf-8')) / (1024 * 1024)
+        if new_size_mb > settings.file_read_max_mb:
+             raise AgentRunError(
+                f"Resulting file size exceeds limit of {settings.file_read_max_mb}MB."
+            )
+
+        work_path.write_text(new_content, encoding='utf-8')
+
+        return (
+            f"Success. Replaced {replacements_made} occurrence(s) "
+            f"in {work_path.relative_to(settings.workflow_path)}."
+        )
+
+    except re.error as e:
+        raise ModelRetry(f"Invalid regex pattern: {str(e)}. Please fix the pattern.")
+    except Exception as e:
+        raise AgentRunError(f"Failed to modify file: {str(e)}")
