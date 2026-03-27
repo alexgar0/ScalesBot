@@ -11,7 +11,7 @@ class TomlConfigSource(PydanticBaseSettingsSource):
     def __init__(self, settings_cls: type[BaseSettings]):
         super().__init__(settings_cls)
         project_root = Path(__file__).resolve().parent.parent.parent
-        self.config_path = project_root / "workflow" / "config.toml"
+        self.config_path = project_root / "root" / "settings.toml"
         self._data = self._load_data()
 
     def _load_data(self) -> dict[str, Any]:
@@ -35,8 +35,12 @@ class Settings(BaseSettings):
     )
 
     @property
+    def root_path(self) -> Path:
+        return self.project_root / "root"
+    
+    @property
     def workflow_path(self) -> Path:
-        return self.project_root / "workflow"
+        return self.root_path / "workflow"
 
     @property
     def skills_path(self) -> Path:
