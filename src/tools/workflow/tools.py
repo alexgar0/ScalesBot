@@ -1,6 +1,6 @@
 from typing import List
 
-from pydantic_ai import ModelRetry
+from pydantic_ai import BinaryContent, ModelRetry
 from pydantic_ai.exceptions import AgentRunError
 
 from core.agent import agent
@@ -18,9 +18,12 @@ def list_workflow_path(path_in_workflow: WorkflowPath) -> ListWorkflowResult:
     """
 
     work_path = validate_path(path_in_workflow.path)
-
+    
+    if not work_path.exists():
+        raise ModelRetry(f"Specified path is not exists: {work_path}")
+    
     if not work_path.is_dir():
-        raise AgentRunError(f"Specified path is not a directory: {work_path}")
+        raise ModelRetry(f"Specified path is not a directory: {work_path}")
 
     files: List[WorkflowPath] = []
     directories: List[WorkflowPath] = []
@@ -35,8 +38,8 @@ def list_workflow_path(path_in_workflow: WorkflowPath) -> ListWorkflowResult:
 
 
 @agent.tool_plain
-def read_workflow_file(path_in_workflow: WorkflowPath) -> str:
-    """Read the file inside workflow
+def read_workflow_file_text(path_in_workflow: WorkflowPath) -> str:
+    """Read text in file inside the workflow
 
     Args:
         path_in_workflow: Path to the file inside the workflow to read from
@@ -57,3 +60,29 @@ def read_workflow_file(path_in_workflow: WorkflowPath) -> str:
 
     with open(work_path, "r") as file:
         return file.read()
+    
+@agent.tool_plain
+def read_workflow_image(path_to_image: WorkflowPath) -> BinaryContent:
+    """Read text in file inside the workflow
+
+    Args:
+        path_to_image: Path to the image inside the workflow to read
+    """
+
+    work_path = validate_path(path_to_image.path)
+
+    if not work_path.is_file():
+        raise ModelRetry(f"Specified path is not a file: {work_path}")
+
+    size_in_bytes = work_path.stat().st_size
+    size_in_mb = size_in_bytes / (1024 * 1024)
+
+    if size_in_mb > settings.file_read_max_mb:
+        raise AgentRunError(
+            f"Specified file size {size_in_mb}MB is larger than a limit: {settings.file_read_max_mb}"
+        )
+
+    with open(work_path, "rb") as file:
+        image_data = file.read()
+        
+    return BinaryContent(data=image_data, media_type='image/png')
