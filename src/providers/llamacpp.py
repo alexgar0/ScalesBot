@@ -1,7 +1,8 @@
 from pydantic_ai import Agent, ModelSettings
+from pydantic_ai.models import Model
 from pydantic_ai.providers import Provider
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.models.openai import Model, OpenAIChatModel
+from pydantic_ai.models.openai import OpenAIChatModel
 
 from core.config import settings
 
