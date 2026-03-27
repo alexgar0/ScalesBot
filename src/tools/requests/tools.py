@@ -9,7 +9,12 @@ from tools.requests.deps import RequestsDeps
 
 
 @agent.tool
-async def do_http_request(ctx: RunContext[RequestsDeps], url: HttpUrl, method: str, json_body: Optional[Dict[str, str]]) -> str:
+async def do_http_request(
+    ctx: RunContext[RequestsDeps],
+    url: HttpUrl,
+    method: str,
+    json_body: Optional[Dict[str, str]],
+) -> str:
     """Does an HTTP request to the specified URL.
     Use this to interact with external APIs or websites.
 
@@ -18,22 +23,22 @@ async def do_http_request(ctx: RunContext[RequestsDeps], url: HttpUrl, method: s
         method: HTTP method (GET, POST, PUT, DELETE, etc.).
         json_body: Optional JSON body for POST/PUT requests.
     """
-    
+
     client = ctx.deps.http_client
-    
+
     method = method.upper()
-    
+
     try:
         response = await client.request(
             method=method,
             url=str(url),
             json=json_body,
             follow_redirects=True,
-            timeout=20.0
+            timeout=20.0,
         )
-        
-        content_type = response.headers.get('content-type', '')
-        
+
+        content_type = response.headers.get("content-type", "")
+
         response_text = response.text
         if len(response_text) > 2000:
             response_text = response_text[:2000] + "\n... [RESPONSE TRUNCATED]"
@@ -43,7 +48,7 @@ async def do_http_request(ctx: RunContext[RequestsDeps], url: HttpUrl, method: s
             f"Content-Type: {content_type}\n"
             f"Response Body:\n{response_text}"
         )
-        
+
         return result
 
     except httpx.TimeoutException:

@@ -6,12 +6,14 @@ from pydantic_ai.models.openai import OpenAIChatModel
 from core.config import settings
 from core.deps import AgentDependencies
 
+
 def get_system_prompt() -> str:
     system_prompt = settings.workflow_path / "AGENT.MD"
     if system_prompt.exists():
         return system_prompt.read_text()
     else:
         return "You're a helpful assistant"
+
 
 agent = Agent(
     OpenAIChatModel(

@@ -1,4 +1,3 @@
-
 import asyncio
 
 import httpx
@@ -26,15 +25,12 @@ async def start() -> None:
             user_input = input("Chat: ")
             if user_input.lower() in ("exit", "quit"):
                 break
-            result = await agent.run(
-                user_input, 
-                deps=deps, 
-                message_history=history
-            )
-            
+            result = await agent.run(user_input, deps=deps, message_history=history)
+
             history = result.all_messages()
 
             print(f"Agent: {result.output}")
-            
+
+
 def main() -> None:
     asyncio.run(start())

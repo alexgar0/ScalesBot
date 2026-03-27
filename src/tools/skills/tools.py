@@ -45,7 +45,7 @@ def load_skill(ctx: RunContext[SkillDeps], skill_name: str) -> Skill:
 
             if size_in_mb > settings.file_read_max_mb:
                 continue
-            
+
             with open(item, "r") as file:
                 if item.name.lower() == "skill.md":
                     skill_description = f"// SKILL.MD //\n\n{file.read()}"

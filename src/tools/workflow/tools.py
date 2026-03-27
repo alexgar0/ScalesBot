@@ -18,10 +18,10 @@ def list_workflow_path(path_in_workflow: WorkflowPath) -> ListWorkflowResult:
     """
 
     work_path = validate_path(path_in_workflow.path)
-    
+
     if not work_path.exists():
         raise ModelRetry(f"Specified path is not exists: {work_path}")
-    
+
     if not work_path.is_dir():
         raise ModelRetry(f"Specified path is not a directory: {work_path}")
 
@@ -60,7 +60,8 @@ def read_workflow_file_text(path_in_workflow: WorkflowPath) -> str:
 
     with open(work_path, "r") as file:
         return file.read()
-    
+
+
 @agent.tool_plain
 def read_workflow_image(path_to_image: WorkflowPath) -> BinaryContent:
     """Read text in file inside the workflow
@@ -84,8 +85,9 @@ def read_workflow_image(path_to_image: WorkflowPath) -> BinaryContent:
 
     with open(work_path, "rb") as file:
         image_data = file.read()
-        
-    return BinaryContent(data=image_data, media_type='image/png')
+
+    return BinaryContent(data=image_data, media_type="image/png")
+
 
 @agent.tool_plain
 def create_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
@@ -105,7 +107,7 @@ def create_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
             "Use 'edit_workflow_file' to modify existing files."
         )
 
-    content_size_mb = len(content.encode('utf-8')) / (1024 * 1024)
+    content_size_mb = len(content.encode("utf-8")) / (1024 * 1024)
     if content_size_mb > settings.file_read_max_mb:
         raise AgentRunError(
             f"Content size {content_size_mb:.2f}MB exceeds the limit of {settings.file_read_max_mb}MB."
@@ -114,11 +116,12 @@ def create_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
     work_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        work_path.write_text(content, encoding='utf-8')
+        work_path.write_text(content, encoding="utf-8")
         return f"File created successfully at: {work_path.relative_to(settings.workflow_path)}"
     except Exception as e:
         raise AgentRunError(f"Failed to create file: {str(e)}")
-    
+
+
 @agent.tool_plain
 def edit_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
     """Edits (overwrites) an existing file in the workflow directory.
@@ -140,18 +143,19 @@ def edit_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
     if not work_path.is_file():
         raise ModelRetry(f"Specified path is not a file: {work_path}")
 
-    content_size_mb = len(content.encode('utf-8')) / (1024 * 1024)
+    content_size_mb = len(content.encode("utf-8")) / (1024 * 1024)
     if content_size_mb > settings.file_read_max_mb:
         raise AgentRunError(
             f"Content size {content_size_mb:.2f}MB exceeds the limit of {settings.file_read_max_mb}MB."
         )
 
     try:
-        work_path.write_text(content, encoding='utf-8')
+        work_path.write_text(content, encoding="utf-8")
         return f"File updated successfully at: {work_path.relative_to(settings.workflow_path)}"
     except Exception as e:
         raise AgentRunError(f"Failed to edit file: {str(e)}")
-    
+
+
 @agent.tool_plain
 def extend_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
     """Appends content to the end of an existing file in the workflow directory.
@@ -174,7 +178,7 @@ def extend_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
         raise ModelRetry(f"Specified path is not a file: {work_path}")
 
     current_size_bytes = work_path.stat().st_size
-    add_size_bytes = len(content.encode('utf-8'))
+    add_size_bytes = len(content.encode("utf-8"))
     total_size_mb = (current_size_bytes + add_size_bytes) / (1024 * 1024)
 
     if total_size_mb > settings.file_read_max_mb:
@@ -184,7 +188,7 @@ def extend_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
         )
 
     try:
-        with open(work_path, 'a', encoding='utf-8') as f:
+        with open(work_path, "a", encoding="utf-8") as f:
             f.write(content)
         return f"Content appended successfully to: {work_path.relative_to(settings.workflow_path)}"
     except Exception as e:
