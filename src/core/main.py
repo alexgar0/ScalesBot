@@ -1,6 +1,8 @@
 import asyncio
+from typing import List
 
 import httpx
+from pydantic_ai import ModelMessage
 
 from core.agent import agent
 from core.deps import AgentDependencies
@@ -20,7 +22,7 @@ async def start() -> None:
             http_client=client,
             current_skills={},
         )
-        history = []
+        history: List[ModelMessage] = []
         while True:
             user_input = input("Chat: ")
             if user_input.lower() in ("exit", "quit"):
