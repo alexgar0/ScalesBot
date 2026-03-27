@@ -1,0 +1,7 @@
+import httpx
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class RequestsDeps(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    http_client: httpx.AsyncClient
