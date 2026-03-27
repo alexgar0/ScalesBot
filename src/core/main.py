@@ -1,4 +1,7 @@
 
+import asyncio
+
+import httpx
 import logfire
 
 from core.agent import agent
@@ -8,24 +11,31 @@ from core.util import clear_temp
 from tools.workflow import tools as workflow_tools
 from tools.skills import tools as skill_tools
 from tools.browser import tools as browser_tools
+from tools.requests import tools as requests_tools
 
 
-def main() -> None:
+async def start() -> None:
     setup_logging()
     clear_temp()
-    deps = AgentDependencies()
-    history = []
-
-    while True:
-        user_input = input("Chat: ")
-        if user_input.lower() in ("exit", "quit"):
-            break
-        result = agent.run_sync(
-            user_input, 
-            deps=deps, 
-            message_history=history
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        deps = AgentDependencies(
+            http_client=client,
+            current_skills={},
         )
-        
-        history = result.all_messages()
+        history = []
+        while True:
+            user_input = input("Chat: ")
+            if user_input.lower() in ("exit", "quit"):
+                break
+            result = await agent.run(
+                user_input, 
+                deps=deps, 
+                message_history=history
+            )
+            
+            history = result.all_messages()
 
-        print(f"Agent: {result.output}")
+            print(f"Agent: {result.output}")
+            
+def main() -> None:
+    asyncio.run(start())
