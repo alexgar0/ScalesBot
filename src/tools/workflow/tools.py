@@ -260,3 +260,26 @@ def replace_workflow_pattern(
         raise ModelRetry(f"Invalid regex pattern: {str(e)}. Please fix the pattern.")
     except Exception as e:
         raise AgentRunError(f"Failed to modify file: {str(e)}")
+    
+    
+@agent.tool_plain
+def create_workspace_directory(
+    path_in_workflow: WorkflowPath, 
+    directory_name: str
+) -> str:
+    """Use to create a directory inside the workflow folder
+    
+    Args:
+        path_in_workflow: Path to a parent directory
+        directory_name: Name of the new directory
+    """
+    
+    work_path = validate_path(path_in_workflow.path)
+    new_dir = work_path / directory_name
+    try:
+        new_dir.mkdir()
+        return f"Directory '{new_dir}' created successfully."
+    except FileExistsError:
+        return f"Directory '{new_dir}' already exists."
+    except OSError as e:
+        raise ModelRetry(f"Error creating directory: {e}")
