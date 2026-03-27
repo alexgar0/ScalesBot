@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     def temp_path(self) -> Path:
         return self.workflow_path / "tmp"
 
+    provider: str
+    model: str
+    api_key: str
     context_window: int = 128000
     temperature: float = 1
 

@@ -1364,7 +1364,7 @@ dependencies = [
     { name = "httpx" },
     { name = "logfire" },
     { name = "pydantic-ai" },
-    { name = "pydantic-ai-slim", extra = ["openai"] },
+    { name = "pydantic-ai-slim", extra = ["openai", "openrouter"] },
     { name = "pydantic-settings" },
 ]
 
@@ -1379,7 +1379,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "logfire", specifier = ">=4.30.0" },
     { name = "pydantic-ai", specifier = ">=1.72.0" },
-    { name = "pydantic-ai-slim", extras = ["openai"], specifier = ">=1.72.0" },
+    { name = "pydantic-ai-slim", extras = ["openai", "openrouter"], specifier = ">=1.72.0" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
 ]
 
@@ -1875,6 +1875,9 @@ mistral = [
 openai = [
     { name = "openai" },
     { name = "tiktoken" },
+]
+openrouter = [
+    { name = "openai" },
 ]
 retries = [
     { name = "tenacity" },

@@ -6,6 +6,7 @@ from pydantic_ai.models.openai import OpenAIChatModel
 from core.config import settings
 from core.deps import AgentDependencies
 
+from providers.factory import model_factory
 
 def get_system_prompt() -> str:
     system_prompt = settings.workflow_path / "AGENT.MD"
@@ -16,13 +17,7 @@ def get_system_prompt() -> str:
 
 
 agent = Agent(
-    OpenAIChatModel(
-        "",
-        provider=OpenAIProvider(base_url="http://localhost:8080/v1"),
-        settings=ModelSettings(
-            temperature=settings.temperature, max_tokens=settings.context_window
-        ),
-    ),
+    model=model_factory(),
     system_prompt=get_system_prompt(),
     deps_type=AgentDependencies,
 )

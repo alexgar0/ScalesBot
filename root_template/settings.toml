@@ -1,3 +1,6 @@
+provider = "llamacpp"
+model = "Qwen3.5-27B-Q4_1.gguf"
+api_key = "sk-dummy"
 context_window = 64000
 temperature = 1.5
 file_read_max_mb = 20
