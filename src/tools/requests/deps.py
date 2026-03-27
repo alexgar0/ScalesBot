@@ -1,5 +1,5 @@
 import httpx
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class RequestsDeps(BaseModel):

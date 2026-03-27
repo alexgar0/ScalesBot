@@ -2,7 +2,6 @@
 import asyncio
 
 import httpx
-import logfire
 
 from core.agent import agent
 from core.deps import AgentDependencies
