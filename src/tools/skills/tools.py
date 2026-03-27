@@ -45,18 +45,21 @@ def load_skill(ctx: RunContext[SkillDeps], skill_name: str) -> Skill:
 
             if size_in_mb > settings.file_read_max_mb:
                 continue
-
+            
             with open(item, "r") as file:
                 if item.name.lower() == "skill.md":
-                    skill_description = file.read()
+                    skill_description = f"// SKILL.MD //\n\n{file.read()}"
                 else:
-                    references.append(file.read())
+                    relative_path = item.relative_to(skill_path)
+                    references.append(f"// {relative_path} //\n\n{file.read()}")
 
     if not skill_description:
         raise ModelRetry(f"Unable to load skill {skill_name}")
 
-    return Skill(
+    skill = Skill(
         skill_name=skill_name,
         skill_description=skill_description,
         references=references,
     )
+    ctx.deps.add_skill(skill)
+    return skill
