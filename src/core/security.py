@@ -6,7 +6,7 @@ from core.config import settings
 
 
 def validate_path(path: Path) -> Path:
-    root_path = settings.workflow_path.resolve()
+    root_path = settings.workspace_path.resolve()
     input_path = path
 
     if str(input_path) == "/" or str(input_path) == ".":
@@ -17,7 +17,7 @@ def validate_path(path: Path) -> Path:
             work_path = input_path
         else:
             raise AgentRunError(
-                f"Access denied: Path {input_path} is outside workflow directory."
+                f"Access denied: Path {input_path} is outside workspace directory."
             )
 
     else:

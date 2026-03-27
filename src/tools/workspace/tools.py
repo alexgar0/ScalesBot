@@ -7,18 +7,18 @@ from pydantic_ai.exceptions import AgentRunError
 from core.agent import agent
 from core.config import settings
 from core.security import validate_path
-from tools.workflow.models import ListWorkflowResult, PathType, WorkflowPath
+from tools.workspace.models import ListWorkspaceResult, PathType, WorkspacePath
 
 
 @agent.tool_plain
-def list_workflow_path(path_in_workflow: WorkflowPath) -> ListWorkflowResult:
-    """List files and directories inside specified workflow directory
+def list_workspace_path(path_in_workspace: WorkspacePath) -> ListWorkspaceResult:
+    """List files and directories inside specified workspace directory
 
     Args:
-        path_in_workflow: Path to the directory inside the workflow to list files and directories from
+        path_in_workspace: Path to the directory inside the workspace to list files and directories from
     """
 
-    work_path = validate_path(path_in_workflow.path)
+    work_path = validate_path(path_in_workspace.path)
 
     if not work_path.exists():
         raise ModelRetry(f"Specified path is not exists: {work_path}")
@@ -26,27 +26,27 @@ def list_workflow_path(path_in_workflow: WorkflowPath) -> ListWorkflowResult:
     if not work_path.is_dir():
         raise ModelRetry(f"Specified path is not a directory: {work_path}")
 
-    files: List[WorkflowPath] = []
-    directories: List[WorkflowPath] = []
+    files: List[WorkspacePath] = []
+    directories: List[WorkspacePath] = []
 
     for x in work_path.iterdir():
         if x.is_file():
-            files.append(WorkflowPath(path=x, type=PathType.FILE))
+            files.append(WorkspacePath(path=x, type=PathType.FILE))
         elif x.is_dir():
-            directories.append(WorkflowPath(path=x, type=PathType.DIR))
+            directories.append(WorkspacePath(path=x, type=PathType.DIR))
 
-    return ListWorkflowResult(files=files, directories=directories)
+    return ListWorkspaceResult(files=files, directories=directories)
 
 
 @agent.tool_plain
-def read_workflow_file_text(path_in_workflow: WorkflowPath) -> str:
-    """Read text in file inside the workflow
+def read_workspace_file_text(path_in_workspace: WorkspacePath) -> str:
+    """Read text in file inside the workspace
 
     Args:
-        path_in_workflow: Path to the file inside the workflow to read from
+        path_in_workspace: Path to the file inside the workspace to read from
     """
 
-    work_path = validate_path(path_in_workflow.path)
+    work_path = validate_path(path_in_workspace.path)
 
     if not work_path.is_file():
         raise ModelRetry(f"Specified path is not a file: {work_path}")
@@ -64,11 +64,11 @@ def read_workflow_file_text(path_in_workflow: WorkflowPath) -> str:
 
 
 @agent.tool_plain
-def read_workflow_image(path_to_image: WorkflowPath) -> BinaryContent:
-    """Read text in file inside the workflow
+def read_workspace_image(path_to_image: WorkspacePath) -> BinaryContent:
+    """Read text in file inside the workspace
 
     Args:
-        path_to_image: Path to the image inside the workflow to read
+        path_to_image: Path to the image inside the workspace to read
     """
 
     work_path = validate_path(path_to_image.path)
@@ -91,21 +91,21 @@ def read_workflow_image(path_to_image: WorkflowPath) -> BinaryContent:
 
 
 @agent.tool_plain
-def create_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
-    """Creates a new file in the workflow directory with the specified content.
+def create_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str:
+    """Creates a new file in the workspace directory with the specified content.
     Fails if the file already exists.
 
     Args:
-        path_in_workflow: Path for the new file inside the workflow.
+        path_in_workspace: Path for the new file inside the workspace.
         content: The text content to write into the file.
     """
 
-    work_path = validate_path(path_in_workflow.path)
+    work_path = validate_path(path_in_workspace.path)
 
     if work_path.exists():
         raise ModelRetry(
             f"File already exists at {work_path}. "
-            "Use 'edit_workflow_file' to modify existing files."
+            "Use 'edit_workspace_file' to modify existing files."
         )
 
     content_size_mb = len(content.encode("utf-8")) / (1024 * 1024)
@@ -118,27 +118,27 @@ def create_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
 
     try:
         work_path.write_text(content, encoding="utf-8")
-        return f"File created successfully at: {work_path.relative_to(settings.workflow_path)}"
+        return f"File created successfully at: {work_path.relative_to(settings.workspace_path)}"
     except Exception as e:
         raise AgentRunError(f"Failed to create file: {str(e)}")
 
 
 @agent.tool_plain
-def edit_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
-    """Edits (overwrites) an existing file in the workflow directory.
+def edit_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str:
+    """Edits (overwrites) an existing file in the workspace directory.
     Fails if the file does not exist.
 
     Args:
-        path_in_workflow: Path to the existing file inside the workflow.
+        path_in_workspace: Path to the existing file inside the workspace.
         content: The new text content to write into the file.
     """
 
-    work_path = validate_path(path_in_workflow.path)
+    work_path = validate_path(path_in_workspace.path)
 
     if not work_path.exists():
         raise ModelRetry(
             f"File does not exist at {work_path}. "
-            "Use 'create_workflow_file' to create new files."
+            "Use 'create_workspace_file' to create new files."
         )
 
     if not work_path.is_file():
@@ -152,27 +152,27 @@ def edit_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
 
     try:
         work_path.write_text(content, encoding="utf-8")
-        return f"File updated successfully at: {work_path.relative_to(settings.workflow_path)}"
+        return f"File updated successfully at: {work_path.relative_to(settings.workspace_path)}"
     except Exception as e:
         raise AgentRunError(f"Failed to edit file: {str(e)}")
 
 
 @agent.tool_plain
-def extend_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
-    """Appends content to the end of an existing file in the workflow directory.
+def extend_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str:
+    """Appends content to the end of an existing file in the workspace directory.
     Does not overwrite existing content. Fails if the file does not exist.
 
     Args:
-        path_in_workflow: Path to the existing file inside the workflow.
+        path_in_workspace: Path to the existing file inside the workspace.
         content: The text content to append to the file.
     """
 
-    work_path = validate_path(path_in_workflow.path)
+    work_path = validate_path(path_in_workspace.path)
 
     if not work_path.exists():
         raise ModelRetry(
             f"File does not exist at {work_path}. "
-            "Use 'create_workflow_file' to create new files."
+            "Use 'create_workspace_file' to create new files."
         )
 
     if not work_path.is_file():
@@ -191,25 +191,25 @@ def extend_workflow_file(path_in_workflow: WorkflowPath, content: str) -> str:
     try:
         with open(work_path, "a", encoding="utf-8") as f:
             f.write(content)
-        return f"Content appended successfully to: {work_path.relative_to(settings.workflow_path)}"
+        return f"Content appended successfully to: {work_path.relative_to(settings.workspace_path)}"
     except Exception as e:
         raise AgentRunError(f"Failed to append to file: {str(e)}")
 
 
 @agent.tool_plain
-def replace_workflow_pattern(
-    path_in_workflow: WorkflowPath, 
+def replace_workspace_pattern(
+    path_in_workspace: WorkspacePath, 
     pattern: str, 
     replacement: str, 
     count: Optional[int] = None
 ) -> str:
     """
-    Replaces text in a workflow file using a regex pattern.
+    Replaces text in a workspace file using a regex pattern.
     Use this to update specific parts of a file without rewriting the entire file.
-    You must use this as a priority over `edit_workflow_file` if the edit is small or easy.
+    You must use this as a priority over `edit_workspace_file` if the edit is small or easy.
 
     Args:
-        path_in_workflow: Path to the file inside the workflow.
+        path_in_workspace: Path to the file inside the workspace.
         pattern: The regex pattern to search for. 
                  (e.g., 'old_function' or 'def\\s+foo'). 
                  Be careful with escaping backslashes in strings.
@@ -218,7 +218,7 @@ def replace_workflow_pattern(
                If None (default), replaces all occurrences.
     """
 
-    work_path = validate_path(path_in_workflow.path)
+    work_path = validate_path(path_in_workspace.path)
 
     if not work_path.exists():
         raise ModelRetry(f"File does not exist: {work_path}")
@@ -253,7 +253,7 @@ def replace_workflow_pattern(
 
         return (
             f"Success. Replaced {replacements_made} occurrence(s) "
-            f"in {work_path.relative_to(settings.workflow_path)}."
+            f"in {work_path.relative_to(settings.workspace_path)}."
         )
 
     except re.error as e:
@@ -264,17 +264,17 @@ def replace_workflow_pattern(
     
 @agent.tool_plain
 def create_workspace_directory(
-    path_in_workflow: WorkflowPath, 
+    path_in_workspace: WorkspacePath, 
     directory_name: str
 ) -> str:
-    """Use to create a directory inside the workflow folder
+    """Use to create a directory inside the workspace folder
     
     Args:
-        path_in_workflow: Path to a parent directory
+        path_in_workspace: Path to a parent directory
         directory_name: Name of the new directory
     """
     
-    work_path = validate_path(path_in_workflow.path)
+    work_path = validate_path(path_in_workspace.path)
     new_dir = work_path / directory_name
     try:
         new_dir.mkdir()

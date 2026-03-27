@@ -9,7 +9,7 @@ from core.deps import AgentDependencies
 
 def load_md_file(filename: str, title: str) -> str:
     """Reads MD file and returns formatted block."""
-    path = settings.workflow_path / filename
+    path = settings.workspace_path / filename
     if path.exists():
         content = path.read_text(encoding="utf-8")
         return f"<{title}>\n{content}\n</{title}>"

@@ -10,11 +10,11 @@ class PathType(enum.Enum):
     DIR = "directory"
 
 
-class WorkflowPath(BaseModel):
+class WorkspacePath(BaseModel):
     path: Path
     type: PathType
 
 
-class ListWorkflowResult(BaseModel):
-    files: List[WorkflowPath]
-    directories: List[WorkflowPath]
+class ListWorkspaceResult(BaseModel):
+    files: List[WorkspacePath]
+    directories: List[WorkspacePath]

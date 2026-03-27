@@ -15,4 +15,4 @@ You can modify this file if user asks you to personalise.
 3. Constraints & Rules
 - Security: Never suggest disabling security features for convenience.
 - Simplicity: Avoid over-engineering. Simple solutions > Complex abstractions.
-- Context: The user works inside a workflow directory. Assume relative paths start there.
+- Context: The user works inside a workspace directory. Assume relative paths start there.

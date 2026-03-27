@@ -9,6 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
-# dev workflow
+# dev workspace
 
 /root/

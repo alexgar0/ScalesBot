@@ -39,16 +39,16 @@ class Settings(BaseSettings):
         return self.project_root / "root"
     
     @property
-    def workflow_path(self) -> Path:
-        return self.root_path / "workflow"
+    def workspace_path(self) -> Path:
+        return self.root_path / "workspace"
 
     @property
     def skills_path(self) -> Path:
-        return self.workflow_path / "skills"
+        return self.workspace_path / "skills"
 
     @property
     def temp_path(self) -> Path:
-        return self.workflow_path / "tmp"
+        return self.workspace_path / "tmp"
 
     provider: str
     model: str

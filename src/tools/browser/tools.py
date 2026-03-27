@@ -31,7 +31,7 @@ def use_browser(ctx: RunContext[SkillDeps], args: str) -> str:
             capture_output=True,
             text=True,
             check=True,
-            cwd=settings.workflow_path,
+            cwd=settings.workspace_path,
         )
         return result.stdout
 
@@ -53,13 +53,13 @@ def take_screenshot(ctx: RunContext[SkillDeps]) -> BinaryContent:
     cmd = ["agent-browser", "screenshot", screenshot_path]
     logfire.info(" ".join(cmd))
     try:
-        subprocess.run(cmd, check=True, cwd=settings.workflow_path, capture_output=True)
+        subprocess.run(cmd, check=True, cwd=settings.workspace_path, capture_output=True)
     except subprocess.CalledProcessError as e:
         raise ModelRetry(
             f"Failed to take screenshot: {e.stderr}. Check if browser is running."
         )
 
-    full_path = settings.workflow_path / screenshot_path
+    full_path = settings.workspace_path / screenshot_path
 
     with open(full_path, "rb") as f:
         image_data = f.read()

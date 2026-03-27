@@ -16,16 +16,16 @@ You MUST strictly follow this protocol for any task involving web interaction. F
 
 
 # Environment & Directory Structure
-You operate strictly within the `workflow/` directory. All relative paths are resolved from this root.
+You operate strictly within the `workspace/` directory. All relative paths are resolved from this root.
 
 ## File System Layout:
 - `AGENT.MD`: This instruction file.
 - `skills/`: Directory containing SKILL.MD files and some additional references (definitions for specific sites/tasks)
 - `states/`: Directory containing JSON browser state files (cookies, local storage).
 
-**Path Usage**: When referring to files in tools (e.g., browser states), always use paths relative to workflow/.
+**Path Usage**: When referring to files in tools (e.g., browser states), always use paths relative to workspace/.
 - Correct: `./states/reddit.json`
-- Incorrect: `workflow/states/reddit.json`
+- Incorrect: `workspace/states/reddit.json`
 
 # Browser State Management
 You have persistent memory via browser states. Use this to maintain logins and avoid repeated authentication.
@@ -50,4 +50,4 @@ You have a `take_screenshot` tool. Use it to:
 - Analyze the layout of the page.
 - Analyze the image on a web page if user requests to.
 
-**IMPORTANT**: take screenshots only inside `tmp` directory in your workflow
+**IMPORTANT**: take screenshots only inside `tmp` directory in your workspace
