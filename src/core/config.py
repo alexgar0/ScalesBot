@@ -13,11 +13,15 @@ class Settings(BaseSettings):
     @property
     def workflow_path(self) -> Path:
         return self.project_root / "workflow"
-
+    
     @property
     def skills_path(self) -> Path:
         return self.workflow_path / "skills"
 
+    @property
+    def temp_path(self) -> Path:
+        return self.workflow_path / "tmp"
+    
     context_window: int = 128000
     temperature: float = 1
 
