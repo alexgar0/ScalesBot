@@ -198,10 +198,10 @@ def extend_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str
 
 @agent.tool_plain
 def replace_workspace_pattern(
-    path_in_workspace: WorkspacePath, 
-    pattern: str, 
-    replacement: str, 
-    count: Optional[int] = None
+    path_in_workspace: WorkspacePath,
+    pattern: str,
+    replacement: str,
+    count: Optional[int] = None,
 ) -> str:
     """
     Replaces text in a workspace file using a regex pattern.
@@ -210,8 +210,8 @@ def replace_workspace_pattern(
 
     Args:
         path_in_workspace: Path to the file inside the workspace.
-        pattern: The regex pattern to search for. 
-                 (e.g., 'old_function' or 'def\\s+foo'). 
+        pattern: The regex pattern to search for.
+                 (e.g., 'old_function' or 'def\\s+foo').
                  Be careful with escaping backslashes in strings.
         replacement: The text to replace the pattern with.
         count: Optional. The maximum number of pattern occurrences to replace.
@@ -222,19 +222,15 @@ def replace_workspace_pattern(
 
     if not work_path.exists():
         raise ModelRetry(f"File does not exist: {work_path}")
-    
+
     if not work_path.is_file():
         raise ModelRetry(f"Specified path is not a file: {work_path}")
 
     try:
-        original_content = work_path.read_text(encoding='utf-8')
+        original_content = work_path.read_text(encoding="utf-8")
 
         new_content, replacements_made = re.subn(
-            pattern, 
-            replacement, 
-            original_content, 
-            count=count or 0, 
-            flags=re.MULTILINE
+            pattern, replacement, original_content, count=count or 0, flags=re.MULTILINE
         )
 
         if replacements_made == 0:
@@ -243,13 +239,13 @@ def replace_workspace_pattern(
                 f"Please check your regex pattern: `{pattern}`"
             )
 
-        new_size_mb = len(new_content.encode('utf-8')) / (1024 * 1024)
+        new_size_mb = len(new_content.encode("utf-8")) / (1024 * 1024)
         if new_size_mb > settings.file_read_max_mb:
-             raise AgentRunError(
+            raise AgentRunError(
                 f"Resulting file size exceeds limit of {settings.file_read_max_mb}MB."
             )
 
-        work_path.write_text(new_content, encoding='utf-8')
+        work_path.write_text(new_content, encoding="utf-8")
 
         return (
             f"Success. Replaced {replacements_made} occurrence(s) "
@@ -260,20 +256,19 @@ def replace_workspace_pattern(
         raise ModelRetry(f"Invalid regex pattern: {str(e)}. Please fix the pattern.")
     except Exception as e:
         raise AgentRunError(f"Failed to modify file: {str(e)}")
-    
-    
+
+
 @agent.tool_plain
 def create_workspace_directory(
-    path_in_workspace: WorkspacePath, 
-    directory_name: str
+    path_in_workspace: WorkspacePath, directory_name: str
 ) -> str:
     """Use to create a directory inside the workspace folder
-    
+
     Args:
         path_in_workspace: Path to a parent directory
         directory_name: Name of the new directory
     """
-    
+
     work_path = validate_path(path_in_workspace.path)
     new_dir = work_path / directory_name
     try:

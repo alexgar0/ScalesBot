@@ -53,7 +53,9 @@ def take_screenshot(ctx: RunContext[SkillDeps]) -> BinaryContent:
     cmd = ["agent-browser", "screenshot", screenshot_path]
     logfire.info(" ".join(cmd))
     try:
-        subprocess.run(cmd, check=True, cwd=settings.workspace_path, capture_output=True)
+        subprocess.run(
+            cmd, check=True, cwd=settings.workspace_path, capture_output=True
+        )
     except subprocess.CalledProcessError as e:
         raise ModelRetry(
             f"Failed to take screenshot: {e.stderr}. Check if browser is running."

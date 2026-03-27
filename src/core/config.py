@@ -4,7 +4,11 @@ import tomllib
 from typing import Any
 
 from pydantic import Field
-from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
+from pydantic_settings import (
+    BaseSettings,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+)
 
 
 class TomlConfigSource(PydanticBaseSettingsSource):
@@ -19,15 +23,16 @@ class TomlConfigSource(PydanticBaseSettingsSource):
             with open(self.config_path, "rb") as f:
                 return tomllib.load(f)
         return {}
-    
+
     def get_field_value(self, field: Any, field_name: str) -> tuple[Any, str, bool]:
         if field_name in self._data:
             return self._data[field_name], field_name, False
-        
+
         raise ValueError(f"Field '{field_name}' not found in TOML")
 
     def __call__(self) -> dict[str, Any]:
         return self._data
+
 
 class Settings(BaseSettings):
     project_root: Path = Field(
@@ -37,7 +42,7 @@ class Settings(BaseSettings):
     @property
     def root_path(self) -> Path:
         return self.project_root / "root"
-    
+
     @property
     def workspace_path(self) -> Path:
         return self.root_path / "workspace"
@@ -62,7 +67,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
-    
+
     @classmethod
     def settings_customise_sources(
         cls,

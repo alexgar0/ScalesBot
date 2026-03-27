@@ -4,6 +4,7 @@ from pydantic_ai import RunContext
 
 from core.agent import agent
 
+
 @agent.tool_plain
 def get_local_time() -> str:
     """

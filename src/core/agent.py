@@ -8,6 +8,7 @@ from core.deps import AgentDependencies
 
 from providers.factory import model_factory
 
+
 def get_system_prompt() -> str:
     system_prompt = settings.workspace_path / "AGENT.MD"
     if system_prompt.exists():

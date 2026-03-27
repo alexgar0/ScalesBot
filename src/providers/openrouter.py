@@ -4,6 +4,7 @@ from pydantic_ai.providers.openrouter import OpenRouterProvider
 
 from core.config import settings
 
+
 def get_model() -> Model:
     model = OpenRouterModel(
         settings.model,
