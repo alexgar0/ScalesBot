@@ -6,7 +6,7 @@ from pydantic_ai.models.openai import OpenAIChatModel
 from core.config import settings
 from core.deps import AgentDependencies
 
-from providers.factory import model_factory
+from providers.base import ModelConfig, ProviderRegistry
 
 
 def get_system_prompt() -> str:
@@ -16,9 +16,9 @@ def get_system_prompt() -> str:
     else:
         return "You're a helpful assistant"
 
-
+provider = ProviderRegistry.get_provider(name=settings.provider, config=ModelConfig.from_settings())
 agent = Agent(
-    model=model_factory(),
+    model=provider.model,
     system_prompt=get_system_prompt(),
     deps_type=AgentDependencies,
 )
