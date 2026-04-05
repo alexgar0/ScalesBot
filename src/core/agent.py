@@ -6,7 +6,8 @@ from pydantic_ai.models.openai import OpenAIChatModel
 from core.config import settings
 from core.deps import AgentDependencies
 
-from providers.base import ModelConfig, ProviderRegistry
+from providers.base import ModelConfig
+from providers.registry import ProviderRegistry
 from tools import registry
 
 

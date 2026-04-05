@@ -3,9 +3,10 @@ from pydantic_ai.models.openrouter import OpenRouterModel
 from pydantic_ai.providers.openrouter import OpenRouterProvider as PydanticOpenRouterProvider
 
 from core.config import settings
-from providers.base import BaseProvider, ProviderRegistry
+from providers.base import BaseProvider
+from providers.registry import provider
 
-@ProviderRegistry.register("openrouter")
+@provider("openrouter")
 class OpenRouterProvider(BaseProvider):
     def _init_model(self) -> Model:
         model = OpenRouterModel(

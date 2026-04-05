@@ -5,9 +5,10 @@ from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai.models.openai import OpenAIChatModel
 
 from core.config import settings
-from providers.base import BaseProvider, ProviderRegistry
+from providers.base import BaseProvider
+from providers.registry import provider
 
-@ProviderRegistry.register("llamacpp")
+@provider("llamacpp")
 class LlamaCppProvider(BaseProvider):
     def _init_model(self) -> Model:
         model = OpenAIChatModel(
