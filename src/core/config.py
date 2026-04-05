@@ -1,21 +1,26 @@
 from functools import lru_cache
+import os
 from pathlib import Path
 import tomllib
 from typing import Any
 
-from pydantic import Field
+from loguru import logger
+from pydantic import Field, ValidationError, model_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
     SettingsConfigDict,
 )
 
+from core.setup_project import DEFAULT_PROJECT_NAME, DEFAULT_PROJECT_ROOT
+
 
 class TomlConfigSource(PydanticBaseSettingsSource):
+    """Loads settings from a `settings.toml` file in the project root."""
     def __init__(self, settings_cls: type[BaseSettings]):
         super().__init__(settings_cls)
-        project_root = Path(__file__).resolve().parent.parent.parent
-        self.config_path = project_root / "root" / "settings.toml"
+        root_path = Path(os.getenv("ROOT_PATH", DEFAULT_PROJECT_ROOT))
+        self.config_path = root_path / "settings.toml"
         self._data = self._load_data()
 
     def _load_data(self) -> dict[str, Any]:
@@ -35,13 +40,38 @@ class TomlConfigSource(PydanticBaseSettingsSource):
 
 
 class Settings(BaseSettings):
-    project_root: Path = Field(
-        default_factory=lambda: Path(__file__).resolve().parent.parent.parent
-    )
+    """Global application settings.
 
-    @property
-    def root_path(self) -> Path:
-        return self.project_root / "root"
+    Manages LLM config, file limits, and resolves workspace paths
+    relative to the user's project directory.
+
+    Attributes:
+        root_path: Path to the user's project folder (created by `setup` command).
+        provider: LLM provider name.
+        model: Model identifier.
+        api_key: API key.
+        context_window: Max context tokens (default: 128000).
+        temperature: Sampling temperature (default: 1.0).
+        file_read_max_mb: Max file size to read in MB (default: 20).
+    """
+    root_path: Path = DEFAULT_PROJECT_ROOT
+    provider: str
+    model: str
+    api_key: str
+    context_window: int = 128000
+    temperature: float = 1.0
+    file_read_max_mb: float = 20.0
+
+    model_config = SettingsConfigDict(case_sensitive=False, extra="ignore")
+
+    @model_validator(mode="after")
+    def _check_root_exists(self) -> "Settings":
+        if not self.root_path.is_dir():
+            raise ValueError(
+                f"Project root not found at '{self.root_path}'. "
+                f"Run the 'uv run setup' command first to create it."
+            )
+        return self
 
     @property
     def workspace_path(self) -> Path:
@@ -54,19 +84,6 @@ class Settings(BaseSettings):
     @property
     def temp_path(self) -> Path:
         return self.workspace_path / "tmp"
-
-    provider: str
-    model: str
-    api_key: str
-    context_window: int = 128000
-    temperature: float = 1
-
-    file_read_max_mb: float = 20
-
-    model_config = SettingsConfigDict(
-        case_sensitive=False,
-        extra="ignore",
-    )
 
     @classmethod
     def settings_customise_sources(
@@ -89,13 +106,41 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Gets the application settings.
 
-    This function returns a cached instance of the Settings class, ensuring that the settings
-    are loaded only once.
-
     Returns:
-        The application settings.
+        The application settings instance.
+        
+    Raises:
+        SystemExit: If project is not initialized or config is invalid.
     """
-    return Settings()  # type: ignore[call-arg]
-
+    try:
+        return Settings()  # type: ignore[call-arg]
+    except ValidationError as e:
+        missing_fields = [
+            str(err['loc'][0]) for err in e.errors() 
+            if err['type'] == 'missing'
+        ]
+        
+        if missing_fields:
+            logger.opt(colors=True).error(
+                "\n"
+                "<red>╔════════════════════════════════════╗</red>\n"
+                "<red>║</red>  <bold>Configuration Error </bold>              <red>║</red>\n"
+                "<red>╚════════════════════════════════════╝</red>\n"
+                "\n"
+                "Missing required fields: <yellow>{}</yellow>\n"
+                "\n"
+                "<dim>Solutions:</dim>\n"
+                "  1. Initialize project:  <cyan>uv run setup</cyan>\n"
+                "  2. Or set env vars:\n"
+                "{}\n",
+                ", ".join(f for f in missing_fields),
+                "\n".join(
+                    f"     export {f.upper()}=your_value"
+                    for f in missing_fields
+                )
+            )
+            raise SystemExit(1) from None
+        
+        raise
 
 settings = get_settings()
