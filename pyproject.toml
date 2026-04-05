@@ -1,5 +1,5 @@
 [project]
-name = "myagent"
+name = "scalesbot"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -15,6 +15,7 @@ dependencies = [
 
 [project.scripts]
 start = "core.main:main"
+setup = "core.setup_project:setup"
 
 [tool.mypy]
 python_version = "3.13"
