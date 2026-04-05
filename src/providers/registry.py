@@ -33,7 +33,9 @@ def provider(name: str) -> Callable[[Type[BaseProvider]], Type[BaseProvider]]:
         @provider("llamacpp")
         class LlamaCppProvider(BaseProvider): ...
     """
+
     def decorator(provider_class: Type[BaseProvider]) -> Type[BaseProvider]:
         ProviderRegistry._register(name, provider_class)
         return provider_class
+
     return decorator

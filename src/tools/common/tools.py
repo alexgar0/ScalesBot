@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from pydantic_ai import RunContext
 
 from tools.registry import tool
 

@@ -1,12 +1,12 @@
-from pydantic_ai import Agent, ModelSettings
+from pydantic_ai import ModelSettings
 from pydantic_ai.models import Model
-from pydantic_ai.providers import Provider
 from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai.models.openai import OpenAIChatModel
 
 from core.config import settings
 from providers.base import BaseProvider
 from providers.registry import provider
+
 
 @provider("llamacpp")
 class LlamaCppProvider(BaseProvider):
@@ -20,7 +20,5 @@ class LlamaCppProvider(BaseProvider):
                 temperature=settings.temperature, max_tokens=settings.context_window
             ),
         )
-        
+
         return model
-
-

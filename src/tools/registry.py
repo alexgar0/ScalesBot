@@ -19,12 +19,12 @@ class ToolRegistry:
         for name, meta in cls._tools.items():
             func = meta["func"]
             if meta["is_plain"]:
-                agent.tool_plain(name=meta.get('override_name', name))(func)
+                agent.tool_plain(name=meta.get("override_name", name))(func)
             else:
-                agent.tool(name=meta.get('override_name', name))(func)
-            
+                agent.tool(name=meta.get("override_name", name))(func)
+
             applied_tools.append(name)
-        
+
         logger.info(f"Loaded {len(applied_tools)} tools")
 
     @classmethod
@@ -33,10 +33,10 @@ class ToolRegistry:
 
 
 def tool(
-    name: Optional[str] = None,
-    plain: bool = False
+    name: Optional[str] = None, plain: bool = False
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator for registering a tool"""
+
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         tool_name = name or func.__name__
 
@@ -45,9 +45,10 @@ def tool(
             return func(*args, **kwargs)
 
         wrapper.__tool_name__ = tool_name  # type: ignore[attr-defined]
-        wrapper.__tool_plain__ = plain     # type: ignore[attr-defined]
-        wrapper.__original_func__ = func   # type: ignore[attr-defined]
+        wrapper.__tool_plain__ = plain  # type: ignore[attr-defined]
+        wrapper.__original_func__ = func  # type: ignore[attr-defined]
 
         ToolRegistry._add(wrapper, tool_name, plain)
         return wrapper
+
     return decorator

@@ -10,6 +10,7 @@ from core.deps import AgentDependencies
 from core.log import setup_logging
 from core.util import clear_temp
 
+
 async def start() -> None:
     logger.info("Starting agent...")
     setup_logging()
