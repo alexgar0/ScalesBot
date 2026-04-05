@@ -3,12 +3,12 @@ import subprocess
 import logfire
 from pydantic_ai import BinaryContent, ModelRetry, RunContext
 
-from core.agent import agent
 from core.config import settings
+from tools.registry import tool
 from tools.skills.deps import SkillDeps
 
 
-@agent.tool
+@tool()
 def use_browser(ctx: RunContext[SkillDeps], args: str) -> str:
     """Executes raw browser commands using the 'agent-browser' engine.
 
@@ -42,7 +42,7 @@ def use_browser(ctx: RunContext[SkillDeps], args: str) -> str:
         return "Error: 'agent-browser' is not installed or not found in PATH."
 
 
-@agent.tool
+@tool()
 def take_screenshot(ctx: RunContext[SkillDeps]) -> BinaryContent:
     """
     Takes a screenshot of the current browser state.

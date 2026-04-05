@@ -4,11 +4,11 @@ import httpx
 from pydantic import HttpUrl
 from pydantic_ai import RunContext
 
-from core.agent import agent
+from tools.registry import tool
 from tools.requests.deps import RequestsDeps
 
 
-@agent.tool
+@tool()
 async def do_http_request(
     ctx: RunContext[RequestsDeps],
     url: HttpUrl,

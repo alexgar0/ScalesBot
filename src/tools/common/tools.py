@@ -2,10 +2,10 @@ from datetime import datetime
 
 from pydantic_ai import RunContext
 
-from core.agent import agent
+from tools.registry import tool
 
 
-@agent.tool_plain
+@tool(plain=True)
 def get_local_time() -> str:
     """
     Gets the local time.

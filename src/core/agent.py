@@ -7,6 +7,7 @@ from core.config import settings
 from core.deps import AgentDependencies
 
 from providers.base import ModelConfig, ProviderRegistry
+from tools import registry
 
 
 def get_system_prompt() -> str:
@@ -22,3 +23,5 @@ agent = Agent(
     system_prompt=get_system_prompt(),
     deps_type=AgentDependencies,
 )
+
+registry.ToolRegistry.apply_to_agent(agent)

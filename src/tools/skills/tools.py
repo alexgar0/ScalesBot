@@ -2,13 +2,13 @@ from typing import List, Optional
 
 from pydantic_ai import ModelRetry, RunContext
 
-from core.agent import agent
 from core.config import settings
+from tools.registry import tool
 from tools.skills.deps import SkillDeps
 from tools.skills.models import Skill
 
 
-@agent.tool_plain
+@tool(plain=True)
 def list_skills() -> List[str]:
     """Loads the list of names of all available skills"""
 
@@ -20,7 +20,7 @@ def list_skills() -> List[str]:
     return result
 
 
-@agent.tool
+@tool()
 def load_skill(ctx: RunContext[SkillDeps], skill_name: str) -> Skill:
     """
     Loads instructions and references for the specified skill.

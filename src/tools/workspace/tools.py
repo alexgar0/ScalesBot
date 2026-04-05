@@ -4,13 +4,13 @@ from typing import List, Optional
 from pydantic_ai import BinaryContent, ModelRetry
 from pydantic_ai.exceptions import AgentRunError
 
-from core.agent import agent
 from core.config import settings
 from core.security import validate_path
+from tools.registry import tool
 from tools.workspace.models import ListWorkspaceResult, PathType, WorkspacePath
 
 
-@agent.tool_plain
+@tool(plain=True)
 def list_workspace_path(path_in_workspace: WorkspacePath) -> ListWorkspaceResult:
     """List files and directories inside specified workspace directory
 
@@ -38,7 +38,7 @@ def list_workspace_path(path_in_workspace: WorkspacePath) -> ListWorkspaceResult
     return ListWorkspaceResult(files=files, directories=directories)
 
 
-@agent.tool_plain
+@tool(plain=True)
 def read_workspace_file_text(path_in_workspace: WorkspacePath) -> str:
     """Read text in file inside the workspace
 
@@ -63,7 +63,7 @@ def read_workspace_file_text(path_in_workspace: WorkspacePath) -> str:
         return file.read()
 
 
-@agent.tool_plain
+@tool(plain=True)
 def read_workspace_image(path_to_image: WorkspacePath) -> BinaryContent:
     """Read text in file inside the workspace
 
@@ -90,7 +90,7 @@ def read_workspace_image(path_to_image: WorkspacePath) -> BinaryContent:
     return BinaryContent(data=image_data, media_type="image/png")
 
 
-@agent.tool_plain
+@tool(plain=True)
 def create_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str:
     """Creates a new file in the workspace directory with the specified content.
     Fails if the file already exists.
@@ -123,7 +123,7 @@ def create_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str
         raise AgentRunError(f"Failed to create file: {str(e)}")
 
 
-@agent.tool_plain
+@tool(plain=True)
 def edit_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str:
     """Edits (overwrites) an existing file in the workspace directory.
     Fails if the file does not exist.
@@ -157,7 +157,7 @@ def edit_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str:
         raise AgentRunError(f"Failed to edit file: {str(e)}")
 
 
-@agent.tool_plain
+@tool(plain=True)
 def extend_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str:
     """Appends content to the end of an existing file in the workspace directory.
     Does not overwrite existing content. Fails if the file does not exist.
@@ -196,7 +196,7 @@ def extend_workspace_file(path_in_workspace: WorkspacePath, content: str) -> str
         raise AgentRunError(f"Failed to append to file: {str(e)}")
 
 
-@agent.tool_plain
+@tool(plain=True)
 def replace_workspace_pattern(
     path_in_workspace: WorkspacePath,
     pattern: str,
@@ -258,7 +258,7 @@ def replace_workspace_pattern(
         raise AgentRunError(f"Failed to modify file: {str(e)}")
 
 
-@agent.tool_plain
+@tool(plain=True)
 def create_workspace_directory(
     path_in_workspace: WorkspacePath, directory_name: str
 ) -> str:
