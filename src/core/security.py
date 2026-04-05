@@ -7,17 +7,17 @@ from core.config import settings
 
 def validate_path(path: Path) -> Path:
     """Validate and resolve a file path, ensuring it remains within the workspace directory.
-    
+
     Normalizes the input path, resolves it to an absolute canonical path, and enforces
     security constraints to prevent access outside the configured workspace root.
-    
+
     Args:
         path: The file path to validate. Accepts absolute or relative paths.
               Special values `"/"` and `"."` are treated as the workspace root.
-              
+
     Returns:
         The resolved, absolute path guaranteed to be inside the workspace directory.
-        
+
     Raises:
         AgentRunError: If the path is outside the workspace directory, or if path
                        traversal (e.g., via symlinks or `..`) attempts to escape it.

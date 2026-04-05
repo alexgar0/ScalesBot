@@ -420,7 +420,7 @@ Planned features and improvements:
 - [ ] **Plugin System** - External plugins for tools, providers, and skills (installable via uv)
 - [ ] **Messaging Channels** - Telegram, Signal, Matrix, Nostr bridges for chat-based interaction
 - [ ] **Cron & Scheduling** - Scheduled task execution with cron-like syntax (e.g., "run daily at 9 AM")
-- [ ] **Docker Compose Integration** - Automatic tool/service orchestration via docker-compose (see [Docker Services](#-docker-services) below)
+- [ ] **Docker Compose Integration** - Automatic tool/service orchestration via docker-compose (see [Docker Services](#docker-services-planned) below)
 - [ ] **More Pre-built Skills** - Email handling, calendar management, research assistants
 - [ ] **Vector Store Integration** - RAG capabilities with local/embedded vector databases
 - [ ] **Multi-Agent Support** - Coordinate multiple specialized agents for complex tasks

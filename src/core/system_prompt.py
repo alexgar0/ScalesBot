@@ -9,17 +9,17 @@ from core.config import settings
 
 def load_md_file(filename: str, title: str) -> str:
     """Reads a markdown file from the workspace and wraps its content in XML-style tags.
-    
+
     Args:
         filename: The name of the markdown file to read, relative to the workspace root.
         title: The string used for the opening and closing wrapper tags.
-        
+
     Returns:
-        A formatted string in the format ``<title>\n{content}\n</title>`` if the file 
+        A formatted string in the format ``<title>\n{content}\n</title>`` if the file
         exists, or an empty string if the file is not found.
-        
+
     Note:
-        The file is read using UTF-8 encoding. Path resolution is relative to 
+        The file is read using UTF-8 encoding. Path resolution is relative to
         ``settings.workspace_path`` and does not enforce traversal validation.
     """
     path = settings.workspace_path / filename

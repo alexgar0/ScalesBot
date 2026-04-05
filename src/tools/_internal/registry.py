@@ -11,6 +11,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 class ToolRegistry:
     """Registry for tools"""
+
     _tools: Dict[str, Dict[str, Any]] = {}
 
     @classmethod
@@ -76,6 +77,7 @@ def tool(name: Optional[str] = None, plain: bool = False) -> Callable[[F], F]:
 
 class DependencyRegistry:
     """Registry for toolset dependencies"""
+
     _registered_deps: List[Type[BaseModel]] = []
 
     @classmethod
