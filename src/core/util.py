@@ -1,7 +1,10 @@
+import logfire
+
 from core.config import settings
 
-
+@logfire.instrument()
 def clear_temp() -> None:
+    """Removes the contents inside workspace/tmp directory"""
     folder_path = settings.temp_path
     if not folder_path.exists():
         raise FileNotFoundError(f"Directory does not exist: {folder_path}")
