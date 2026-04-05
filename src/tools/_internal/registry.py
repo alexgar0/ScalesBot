@@ -1,29 +1,32 @@
-from typing import Any, Callable, Dict, List, Optional, Set, Type
+import asyncio
+from typing import Any, Callable, Dict, List, Optional, Set, Type, TypeVar, cast
 from functools import wraps
 
 from loguru import logger
 from pydantic import BaseModel
 from pydantic_ai import Agent
 
+F = TypeVar("F", bound=Callable[..., Any])
 
 class ToolRegistry:
     _tools: Dict[str, Dict[str, Any]] = {}
 
     @classmethod
-    def _add(cls, func: Callable[..., Any], name: str, is_plain: bool) -> None:
-        cls._tools[name] = {"func": func, "is_plain": is_plain}
+    def _add(cls, func: Callable[..., Any], name: str, is_plain: bool, is_async: bool) -> None:
+        cls._tools[name] = {"func": func, "is_plain": is_plain, "is_async": is_async}
 
     @classmethod
-    def apply_to_agent(cls, agent: Agent[Any, str]) -> None:
+    def apply_to_agent(cls, agent: Agent[Any, Any]) -> None:
         """Applies all registered tools to an agent"""
         applied_tools: List[str] = []
         for name, meta in cls._tools.items():
             func = meta["func"]
+            tool_name = meta.get("override_name", name)
+            
             if meta["is_plain"]:
-                agent.tool_plain(name=meta.get("override_name", name))(func)
+                agent.tool_plain(name=tool_name)(func)
             else:
-                agent.tool(name=meta.get("override_name", name))(func)
-
+                agent.tool(name=tool_name)(func)
             applied_tools.append(name)
 
         logger.info(f"Loaded {len(applied_tools)} tools")
@@ -34,24 +37,35 @@ class ToolRegistry:
 
 
 def tool(
-    name: Optional[str] = None, plain: bool = False
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    name: Optional[str] = None, 
+    plain: bool = False
+) -> Callable[[F], F]:
     """Decorator for registering a tool"""
-
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+    
+    def decorator(func: F) -> F:
         tool_name = name or func.__name__
-
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            return func(*args, **kwargs)
-
-        wrapper.__tool_name__ = tool_name  # type: ignore[attr-defined]
-        wrapper.__tool_plain__ = plain  # type: ignore[attr-defined]
-        wrapper.__original_func__ = func  # type: ignore[attr-defined]
-
-        ToolRegistry._add(wrapper, tool_name, plain)
+        is_async = asyncio.iscoroutinefunction(func)
+        
+        if is_async:
+            @wraps(func)
+            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                return await func(*args, **kwargs)
+            async_wrapper.__tool_name__ = tool_name  # type: ignore[attr-defined]
+            async_wrapper.__tool_plain__ = plain     # type: ignore[attr-defined]
+            async_wrapper.__original_func__ = func   # type: ignore[attr-defined]
+            wrapper = cast(F, async_wrapper)
+        else:
+            @wraps(func)
+            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+                return func(*args, **kwargs)
+            sync_wrapper.__tool_name__ = tool_name  # type: ignore[attr-defined]
+            sync_wrapper.__tool_plain__ = plain     # type: ignore[attr-defined]
+            sync_wrapper.__original_func__ = func   # type: ignore[attr-defined]
+            wrapper = cast(F, sync_wrapper)
+        
+        ToolRegistry._add(wrapper, tool_name, plain, is_async)
         return wrapper
-
+    
     return decorator
 
 
