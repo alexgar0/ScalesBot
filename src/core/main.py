@@ -2,8 +2,8 @@ import asyncio
 from typing import List
 
 import httpx
+import logfire
 from pydantic_ai import ModelMessage
-from loguru import logger
 
 from core.agent import agent
 from core.deps import AgentDependencies
@@ -12,8 +12,8 @@ from core.util import clear_temp
 
 
 async def start() -> None:
-    logger.info("Starting agent...")
     setup_logging()
+    logfire.info("Starting agent...")
     clear_temp()
     async with httpx.AsyncClient(timeout=20.0) as client:
         deps = AgentDependencies(

@@ -2,13 +2,16 @@ import importlib
 from pathlib import Path
 import pkgutil
 
-from loguru import logger
+import logfire
 
+
+from core.log import setup_logging
 from tools._internal import registry
 from tools._internal.base import ToolsetDeps
 
 
 def _load_all_tools() -> None:
+    setup_logging()
     current_dir = Path(__file__).parent.resolve()
 
     loaded = []
@@ -19,7 +22,7 @@ def _load_all_tools() -> None:
             importlib.import_module(f".{module_name}.tools", package=__name__)
             loaded.append(module_name)
         except Exception as e:
-            logger.error(f"Failed to load toolset {module_name}: {e}")
+            logfire.error(f"Failed to load toolset {module_name}: {e}")
 
         deps_path = current_dir / module_name / "deps.py"
         if deps_path.exists():
@@ -37,10 +40,10 @@ def _load_all_tools() -> None:
                         registry.DependencyRegistry.register(attr)
 
             except Exception as e:
-                logger.error(f"Failed to load deps from {module_name}: {e}")
+                logfire.error(f"Failed to load deps from {module_name}: {e}")
 
-    logger.info(f"Loaded {len(loaded)} toolsets")
-    logger.info(
+    logfire.info(f"Loaded {len(loaded)} toolsets")
+    logfire.info(
         f"Registered {len(registry.DependencyRegistry._registered_deps)} dependency classes"
     )
 

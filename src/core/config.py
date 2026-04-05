@@ -4,13 +4,14 @@ from pathlib import Path
 import tomllib
 from typing import Any
 
-from loguru import logger
+
 from pydantic import ValidationError, model_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
     SettingsConfigDict,
 )
+from loguru import logger
 
 from core.setup_project import DEFAULT_PROJECT_ROOT
 

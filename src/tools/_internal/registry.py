@@ -2,7 +2,7 @@ import asyncio
 from typing import Any, Callable, Dict, List, Optional, Set, Type, TypeVar, cast
 from functools import wraps
 
-from loguru import logger
+import logfire
 from pydantic import BaseModel
 from pydantic_ai import Agent
 
@@ -33,7 +33,7 @@ class ToolRegistry:
                 agent.tool(name=tool_name)(func)
             applied_tools.append(name)
 
-        logger.info(f"Loaded {len(applied_tools)} tools")
+        logfire.info(f"Loaded {len(applied_tools)} tools")
 
     @classmethod
     def list_tools(cls) -> List[str]:
