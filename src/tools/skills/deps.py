@@ -2,10 +2,11 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
 
+from tools._internal.base import ToolsetDeps
 from tools.skills.models import Skill
 
 
-class SkillDeps(BaseModel):
+class SkillDeps(ToolsetDeps):
     current_skills: Dict[str, Skill] = Field(default_factory=dict)
 
     def has_skill(self, skill_name: str) -> bool:

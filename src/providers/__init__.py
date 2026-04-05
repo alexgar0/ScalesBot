@@ -15,7 +15,7 @@ def _load_all_providers() -> None:
     imported_modules: List[str] = []
     for _, module_name, _ in pkgutil.iter_modules([str(current_dir)]):
         try:
-            if module_name in ("base", "__init__"):
+            if module_name in ("_internal", "__init__"):
                 continue
 
             importlib.import_module(f".{module_name}", package=__name__)

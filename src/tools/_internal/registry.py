@@ -1,7 +1,8 @@
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Set, Type
 from functools import wraps
 
 from loguru import logger
+from pydantic import BaseModel
 from pydantic_ai import Agent
 
 
@@ -52,3 +53,41 @@ def tool(
         return wrapper
 
     return decorator
+
+
+class DependencyRegistry:
+    _registered_deps: List[Type[BaseModel]] = []
+
+    @classmethod
+    def register(cls, dep_class: Type[BaseModel]) -> None:
+        """Registers a toolset dependency type"""
+        cls._registered_deps.append(dep_class)
+
+    @classmethod
+    def get_combined_deps_type(cls) -> Type[BaseModel]:
+        """
+        Creates a dynamic class AgentDependencies,
+        inherits from all registered Deps models.
+        """
+        if not cls._registered_deps:
+            return BaseModel
+
+        cls._validate_fields()
+        bases = tuple(cls._registered_deps)
+        return type("AgentDependencies", bases, {})
+
+    @classmethod
+    def _validate_fields(cls) -> None:
+        """Checks, if there are no conflicting fields in deps"""
+        used_fields: Set[str] = set()
+        for dep_class in cls._registered_deps:
+            if not hasattr(dep_class, "model_fields"):
+                continue
+            
+            for field_name in dep_class.model_fields:
+                if field_name in used_fields:
+                    raise ValueError(
+                        f"Field name collision: '{field_name}' is defined in multiple dependency classes. "
+                        f"Rename it to avoid conflicts."
+                    )
+                used_fields.add(field_name)
