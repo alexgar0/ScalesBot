@@ -1,10 +1,10 @@
 import datetime
+from typing import Any
 
 from pydantic_ai import RunContext
 
 from core.agent import agent
 from core.config import settings
-from core.deps import AgentDependencies
 
 
 def load_md_file(filename: str, title: str) -> str:
@@ -17,7 +17,7 @@ def load_md_file(filename: str, title: str) -> str:
 
 
 @agent.system_prompt
-def build_system_prompt(ctx: RunContext[AgentDependencies]) -> str:
+def build_system_prompt(ctx: RunContext[Any]) -> str:
     """Builds system prompts from separate files"""
     parts = []
 
