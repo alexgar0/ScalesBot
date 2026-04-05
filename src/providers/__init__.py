@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import List
 from loguru import logger
 
-from providers.base import BaseProvider, ModelConfig
-from providers.registry import ProviderRegistry
+from providers._internal.base import BaseProvider, ModelConfig
+from providers._internal.registry import ProviderRegistry
 
 
 def _load_all_providers() -> None:

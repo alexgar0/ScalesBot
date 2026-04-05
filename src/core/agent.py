@@ -4,9 +4,9 @@ from pydantic_ai import Agent
 from core.config import settings
 from core.deps import AgentDependencies
 
-from providers.base import ModelConfig
-from providers.registry import ProviderRegistry
-from tools import registry
+from providers._internal.base import ModelConfig
+from providers._internal.registry import ProviderRegistry
+from tools._internal import registry
 
 
 def get_system_prompt() -> str:

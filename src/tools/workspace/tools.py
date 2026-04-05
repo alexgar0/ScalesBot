@@ -6,7 +6,7 @@ from pydantic_ai.exceptions import AgentRunError
 
 from core.config import settings
 from core.security import validate_path
-from tools.registry import tool
+from tools._internal.registry import tool
 from tools.workspace.models import ListWorkspaceResult, PathType, WorkspacePath
 
 

@@ -1,6 +1,6 @@
 from typing import Callable, Dict, List, Type
 
-from providers.base import BaseProvider, ModelConfig
+from providers._internal.base import BaseProvider, ModelConfig
 
 
 class ProviderRegistry:

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-from tools.registry import tool
+from tools._internal.registry import tool
 
 
 @tool(plain=True)

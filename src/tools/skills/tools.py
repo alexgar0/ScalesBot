@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic_ai import ModelRetry, RunContext
 
 from core.config import settings
-from tools.registry import tool
+from tools._internal.registry import tool
 from tools.skills.deps import SkillDeps
 from tools.skills.models import Skill
 

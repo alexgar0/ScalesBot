@@ -5,8 +5,8 @@ from pydantic_ai.providers.openrouter import (
 )
 
 from core.config import settings
-from providers.base import BaseProvider
-from providers.registry import provider
+from providers._internal.base import BaseProvider
+from providers._internal.registry import provider
 
 
 @provider("openrouter")

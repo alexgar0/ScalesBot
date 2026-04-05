@@ -4,7 +4,7 @@ import httpx
 from pydantic import HttpUrl
 from pydantic_ai import RunContext
 
-from tools.registry import tool
+from tools._internal.registry import tool
 from tools.requests.deps import RequestsDeps
 
 
