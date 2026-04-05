@@ -8,11 +8,14 @@ from pydantic_ai import Agent
 
 F = TypeVar("F", bound=Callable[..., Any])
 
+
 class ToolRegistry:
     _tools: Dict[str, Dict[str, Any]] = {}
 
     @classmethod
-    def _add(cls, func: Callable[..., Any], name: str, is_plain: bool, is_async: bool) -> None:
+    def _add(
+        cls, func: Callable[..., Any], name: str, is_plain: bool, is_async: bool
+    ) -> None:
         cls._tools[name] = {"func": func, "is_plain": is_plain, "is_async": is_async}
 
     @classmethod
@@ -22,7 +25,7 @@ class ToolRegistry:
         for name, meta in cls._tools.items():
             func = meta["func"]
             tool_name = meta.get("override_name", name)
-            
+
             if meta["is_plain"]:
                 agent.tool_plain(name=tool_name)(func)
             else:
@@ -36,36 +39,37 @@ class ToolRegistry:
         return list(cls._tools.keys())
 
 
-def tool(
-    name: Optional[str] = None, 
-    plain: bool = False
-) -> Callable[[F], F]:
+def tool(name: Optional[str] = None, plain: bool = False) -> Callable[[F], F]:
     """Decorator for registering a tool"""
-    
+
     def decorator(func: F) -> F:
         tool_name = name or func.__name__
         is_async = asyncio.iscoroutinefunction(func)
-        
+
         if is_async:
+
             @wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 return await func(*args, **kwargs)
+
             async_wrapper.__tool_name__ = tool_name  # type: ignore[attr-defined]
-            async_wrapper.__tool_plain__ = plain     # type: ignore[attr-defined]
-            async_wrapper.__original_func__ = func   # type: ignore[attr-defined]
+            async_wrapper.__tool_plain__ = plain  # type: ignore[attr-defined]
+            async_wrapper.__original_func__ = func  # type: ignore[attr-defined]
             wrapper = cast(F, async_wrapper)
         else:
+
             @wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
                 return func(*args, **kwargs)
+
             sync_wrapper.__tool_name__ = tool_name  # type: ignore[attr-defined]
-            sync_wrapper.__tool_plain__ = plain     # type: ignore[attr-defined]
-            sync_wrapper.__original_func__ = func   # type: ignore[attr-defined]
+            sync_wrapper.__tool_plain__ = plain  # type: ignore[attr-defined]
+            sync_wrapper.__original_func__ = func  # type: ignore[attr-defined]
             wrapper = cast(F, sync_wrapper)
-        
+
         ToolRegistry._add(wrapper, tool_name, plain, is_async)
         return wrapper
-    
+
     return decorator
 
 
@@ -97,7 +101,7 @@ class DependencyRegistry:
         for dep_class in cls._registered_deps:
             if not hasattr(dep_class, "model_fields"):
                 continue
-            
+
             for field_name in dep_class.model_fields:
                 if field_name in used_fields:
                     raise ValueError(

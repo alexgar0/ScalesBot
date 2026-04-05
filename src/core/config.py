@@ -5,18 +5,19 @@ import tomllib
 from typing import Any
 
 from loguru import logger
-from pydantic import Field, ValidationError, model_validator
+from pydantic import ValidationError, model_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
     SettingsConfigDict,
 )
 
-from core.setup_project import DEFAULT_PROJECT_NAME, DEFAULT_PROJECT_ROOT
+from core.setup_project import DEFAULT_PROJECT_ROOT
 
 
 class TomlConfigSource(PydanticBaseSettingsSource):
     """Loads settings from a `settings.toml` file in the project root."""
+
     def __init__(self, settings_cls: type[BaseSettings]):
         super().__init__(settings_cls)
         root_path = Path(os.getenv("ROOT_PATH", DEFAULT_PROJECT_ROOT))
@@ -54,6 +55,7 @@ class Settings(BaseSettings):
         temperature: Sampling temperature (default: 1.0).
         file_read_max_mb: Max file size to read in MB (default: 20).
     """
+
     root_path: Path = DEFAULT_PROJECT_ROOT
     provider: str
     model: str
@@ -108,7 +110,7 @@ def get_settings() -> Settings:
 
     Returns:
         The application settings instance.
-        
+
     Raises:
         SystemExit: If project is not initialized or config is invalid.
     """
@@ -116,10 +118,9 @@ def get_settings() -> Settings:
         return Settings()  # type: ignore[call-arg]
     except ValidationError as e:
         missing_fields = [
-            str(err['loc'][0]) for err in e.errors() 
-            if err['type'] == 'missing'
+            str(err["loc"][0]) for err in e.errors() if err["type"] == "missing"
         ]
-        
+
         if missing_fields:
             logger.opt(colors=True).error(
                 "\n"
@@ -135,12 +136,12 @@ def get_settings() -> Settings:
                 "{}\n",
                 ", ".join(f for f in missing_fields),
                 "\n".join(
-                    f"     export {f.upper()}=your_value"
-                    for f in missing_fields
-                )
+                    f"     export {f.upper()}=your_value" for f in missing_fields
+                ),
             )
             raise SystemExit(1) from None
-        
+
         raise
+
 
 settings = get_settings()

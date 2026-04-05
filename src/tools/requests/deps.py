@@ -1,5 +1,5 @@
 import httpx
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
 
 from tools._internal.base import ToolsetDeps
 

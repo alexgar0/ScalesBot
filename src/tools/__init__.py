@@ -25,11 +25,12 @@ def _load_all_tools() -> None:
         if deps_path.exists():
             try:
                 deps_module = importlib.import_module(
-                    f".{module_name}.deps", package=__name__)
+                    f".{module_name}.deps", package=__name__
+                )
                 for attr_name in dir(deps_module):
                     attr = getattr(deps_module, attr_name)
                     if (
-                        isinstance(attr, type) 
+                        isinstance(attr, type)
                         and issubclass(attr, ToolsetDeps)
                         and attr is not ToolsetDeps
                     ):
@@ -39,7 +40,9 @@ def _load_all_tools() -> None:
                 logger.error(f"Failed to load deps from {module_name}: {e}")
 
     logger.info(f"Loaded {len(loaded)} toolsets")
-    logger.info(f"Registered {len(registry.DependencyRegistry._registered_deps)} dependency classes")
+    logger.info(
+        f"Registered {len(registry.DependencyRegistry._registered_deps)} dependency classes"
+    )
 
 
 _load_all_tools()

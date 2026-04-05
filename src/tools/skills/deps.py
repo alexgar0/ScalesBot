@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from tools._internal.base import ToolsetDeps
 from tools.skills.models import Skill
