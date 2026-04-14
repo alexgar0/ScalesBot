@@ -1,5 +1,6 @@
 import re
 from typing import List, Optional
+import logfire
 
 from pydantic_ai import BinaryContent, ModelRetry
 from pydantic_ai.exceptions import AgentRunError
@@ -7,7 +8,7 @@ from pydantic_ai.exceptions import AgentRunError
 from core.config import settings
 from core.security import validate_path
 from tools._internal.registry import tool
-from tools.workspace.models import ListWorkspaceResult, PathType, WorkspacePath
+from tools.workspace.models import ListWorkspaceResult, WorkspacePath
 
 
 @tool(plain=True)
@@ -31,9 +32,9 @@ def list_workspace_path(path_in_workspace: WorkspacePath) -> ListWorkspaceResult
 
     for x in work_path.iterdir():
         if x.is_file():
-            files.append(WorkspacePath(path=x, type=PathType.FILE))
+            files.append(WorkspacePath(path=x, path_type="file"))
         elif x.is_dir():
-            directories.append(WorkspacePath(path=x, type=PathType.DIR))
+            directories.append(WorkspacePath(path=x, path_type="directory"))
 
     return ListWorkspaceResult(files=files, directories=directories)
 
@@ -48,8 +49,11 @@ def read_workspace_file_text(path_in_workspace: WorkspacePath) -> str:
 
     work_path = validate_path(path_in_workspace.path)
 
+    logfire.debug(f"Agent reading file: {work_path}")
     if not work_path.is_file():
-        raise ModelRetry(f"Specified path is not a file: {work_path}")
+        message = f"Specified path is not a file: {work_path}"
+        logfire.error(message)
+        raise ModelRetry(message)
 
     size_in_bytes = work_path.stat().st_size
     size_in_mb = size_in_bytes / (1024 * 1024)
@@ -73,8 +77,11 @@ def read_workspace_image(path_to_image: WorkspacePath) -> BinaryContent:
 
     work_path = validate_path(path_to_image.path)
 
+    logfire.debug(f"Agent reading file: {work_path}")
     if not work_path.is_file():
-        raise ModelRetry(f"Specified path is not a file: {work_path}")
+        message = f"Specified path is not a file: {work_path}"
+        logfire.error(message)
+        raise ModelRetry(message)
 
     size_in_bytes = work_path.stat().st_size
     size_in_mb = size_in_bytes / (1024 * 1024)

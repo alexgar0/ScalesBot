@@ -1,18 +1,13 @@
 import enum
 from pathlib import Path
-from typing import List
+from typing import List, Literal
 
 from pydantic import BaseModel
 
 
-class PathType(enum.Enum):
-    FILE = "file"
-    DIR = "directory"
-
-
 class WorkspacePath(BaseModel):
     path: Path
-    type: PathType
+    path_type: Literal["file", "directory"]
 
 
 class ListWorkspaceResult(BaseModel):
