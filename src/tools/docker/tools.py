@@ -1,7 +1,5 @@
-from typing import Dict, Optional
+from typing import Optional
 
-import httpx
-from pydantic import HttpUrl
 from pydantic_ai import RunContext
 
 from tools._internal.registry import tool

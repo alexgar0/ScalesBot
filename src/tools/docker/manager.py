@@ -51,13 +51,16 @@ class DockerComposeManager:
 
     def up(self, module_name: str, detach: bool = True, build: bool = False) -> subprocess.CompletedProcess[str]:
         args = ["up"]
-        if detach: args.append("-d")
-        if build: args.append("--build")
+        if detach:
+            args.append("-d")
+        if build: 
+            args.append("--build")
         return self._run_compose(module_name, args)
 
     def down(self, module_name: str, remove_volumes: bool = False) -> subprocess.CompletedProcess[str]:
         args = ["down"]
-        if remove_volumes: args.append("-v")
+        if remove_volumes:
+            args.append("-v")
         return self._run_compose(module_name, args)
 
     def restart(self, module_name: str) -> subprocess.CompletedProcess[str]:

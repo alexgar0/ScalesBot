@@ -4,7 +4,6 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.live import Live
-from rich.spinner import Spinner
 
 import httpx
 import logfire

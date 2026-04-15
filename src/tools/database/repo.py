@@ -1,6 +1,5 @@
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Optional, cast
+from typing import Any, Dict, List, Optional, cast
 import chromadb
 from chromadb.utils import embedding_functions
 from chromadb.api.types import Embeddable, EmbeddingFunction, Where
