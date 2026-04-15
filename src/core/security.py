@@ -5,7 +5,9 @@ from pydantic_ai import AgentRunError
 from core.config import settings
 
 
-def validate_path(path: Path, root_path: Path = settings.workspace_path.resolve()) -> Path:
+def validate_path(
+    path: Path, root_path: Path = settings.workspace_path.resolve()
+) -> Path:
     """Validate and resolve a file path, ensuring it remains within the workspace directory.
 
     Normalizes the input path, resolves it to an absolute canonical path, and enforces

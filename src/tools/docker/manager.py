@@ -7,9 +7,12 @@ import logfire
 from core.config import settings
 from core.security import validate_path
 
+
 class DockerComposeError(Exception):
     """Custom exception for docker compose errors"""
+
     pass
+
 
 class DockerComposeManager:
     def __init__(self) -> None:
@@ -31,7 +34,9 @@ class DockerComposeManager:
             raise FileNotFoundError(f"docker-compose.yml not found: {compose_path}")
         return validated_compose_path
 
-    def _run_compose(self, module_name: str, args: List[str], capture_output: bool = False) -> subprocess.CompletedProcess[str]:
+    def _run_compose(
+        self, module_name: str, args: List[str], capture_output: bool = False
+    ) -> subprocess.CompletedProcess[str]:
         compose_file = self._get_compose_file(module_name)
         cmd = ["docker", "compose", "-f", str(compose_file)] + args
         try:
@@ -41,23 +46,29 @@ class DockerComposeManager:
                 cwd=str(compose_file.parent),
                 capture_output=capture_output,
                 text=True,
-                check=True
+                check=True,
             )
         except subprocess.CalledProcessError as e:
             logfire.error(f"docker compose failed for {module_name}: {e.stderr}")
-            raise DockerComposeError(f"Command returned with an error: {' '.join(cmd)}") from e
+            raise DockerComposeError(
+                f"Command returned with an error: {' '.join(cmd)}"
+            ) from e
         except FileNotFoundError:
             raise DockerComposeError("Docker is not installed or not found in PATH")
 
-    def up(self, module_name: str, detach: bool = True, build: bool = False) -> subprocess.CompletedProcess[str]:
+    def up(
+        self, module_name: str, detach: bool = True, build: bool = False
+    ) -> subprocess.CompletedProcess[str]:
         args = ["up"]
         if detach:
             args.append("-d")
-        if build: 
+        if build:
             args.append("--build")
         return self._run_compose(module_name, args)
 
-    def down(self, module_name: str, remove_volumes: bool = False) -> subprocess.CompletedProcess[str]:
+    def down(
+        self, module_name: str, remove_volumes: bool = False
+    ) -> subprocess.CompletedProcess[str]:
         args = ["down"]
         if remove_volumes:
             args.append("-v")
@@ -74,9 +85,12 @@ class DockerComposeManager:
 
     def ps(self, module_name: str) -> str:
         return self._run_compose(module_name, ["ps"], capture_output=True).stdout
-    
+
     def list_modules(self) -> List[str]:
-        return sorted([
-            d.name for d in self.modules_root.iterdir()
-            if d.is_dir() and (d / "docker-compose.yml").exists()
-        ])
+        return sorted(
+            [
+                d.name
+                for d in self.modules_root.iterdir()
+                if d.is_dir() and (d / "docker-compose.yml").exists()
+            ]
+        )

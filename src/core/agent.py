@@ -24,7 +24,7 @@ agent = Agent(
     model=provider.model,
     system_prompt=get_system_prompt(),
     deps_type=AgentDependencies,
-    retries=3
+    retries=3,
 )
 
 registry.ToolRegistry.apply_to_agent(agent)
