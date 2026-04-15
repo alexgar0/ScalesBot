@@ -4,3 +4,4 @@ api_key = "sk-dummy"
 context_window = 64000
 temperature = 1.5
 file_read_max_mb = 20
+SEARXNG_SECRET = "supersecretkey"
