@@ -31,7 +31,7 @@ class DockerComposeManager:
             raise FileNotFoundError(f"docker-compose.yml not found: {compose_path}")
         return validated_compose_path
 
-    def _run_compose(self, module_name: str, args: List[str], capture_output: bool = False) -> subprocess.CompletedProcess:
+    def _run_compose(self, module_name: str, args: List[str], capture_output: bool = False) -> subprocess.CompletedProcess[str]:
         compose_file = self._get_compose_file(module_name)
         cmd = ["docker", "compose", "-f", str(compose_file)] + args
         try:
@@ -49,18 +49,18 @@ class DockerComposeManager:
         except FileNotFoundError:
             raise DockerComposeError("Docker is not installed or not found in PATH")
 
-    def up(self, module_name: str, detach: bool = True, build: bool = False) -> subprocess.CompletedProcess:
+    def up(self, module_name: str, detach: bool = True, build: bool = False) -> subprocess.CompletedProcess[str]:
         args = ["up"]
         if detach: args.append("-d")
         if build: args.append("--build")
         return self._run_compose(module_name, args)
 
-    def down(self, module_name: str, remove_volumes: bool = False) -> subprocess.CompletedProcess:
+    def down(self, module_name: str, remove_volumes: bool = False) -> subprocess.CompletedProcess[str]:
         args = ["down"]
         if remove_volumes: args.append("-v")
         return self._run_compose(module_name, args)
 
-    def restart(self, module_name: str) -> subprocess.CompletedProcess:
+    def restart(self, module_name: str) -> subprocess.CompletedProcess[str]:
         return self._run_compose(module_name, ["restart"])
 
     def logs(self, module_name: str, tail: Optional[int] = 100) -> str:

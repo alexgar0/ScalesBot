@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Optional, cast
+from typing import Any, Dict, List, Literal, Optional, cast
 import chromadb
 from chromadb.utils import embedding_functions
-from chromadb.api.types import EmbeddingFunction, Where
+from chromadb.api.types import Embeddable, EmbeddingFunction, Where
 
 from core.config import settings
 from tools.database.models import MemoryEntry
@@ -21,7 +21,7 @@ class ChromaMemoryRepo:
         )
         self.collection = self.client.get_or_create_collection(
             name=collection,
-            embedding_function=cast(EmbeddingFunction, self.embed_fn),
+            embedding_function=cast(EmbeddingFunction[Embeddable], self.embed_fn),
             metadata={"hnsw:space": "cosine"}
         )
 
@@ -31,13 +31,13 @@ class ChromaMemoryRepo:
         category: Optional[str] = None,
         top_k: int = 3,
         min_score: float = 0.3
-    ) -> list[dict]:
+    ) -> List[Dict[str, Any]]:
         where = cast(Where, {"category": category}) if category else None
         
         results = self.collection.query(
             query_texts=[query],
             n_results=top_k,
-            where=where,  # type: ignore[arg-type]
+            where=where,
             include=["documents", "metadatas", "distances"]
         )
         
@@ -65,7 +65,7 @@ class ChromaMemoryRepo:
             if (1 / (1 + dist)) >= min_score
         ]
 
-    def store(self, entry: MemoryEntry, entry_id: Optional[str] = None) -> str:
+    def store(self, entry: MemoryEntry, entry_id: Optional[str] = None) -> Any:
         similar = self.search(entry.content, top_k=1, min_score=0.95)
         if similar:
             return similar[0]["meta"].get("id", "duplicate")
