@@ -210,9 +210,9 @@ ScalesBot/
 
 ---
 
-## 🐳 Docker Services (Planned)
+## 🐳 Docker Services
 
-ScalesBot will support running external services via Docker Compose for enhanced capabilities. Services are managed through a **tool abstraction layer** - the agent never touches `docker-compose` files directly.
+ScalesBot supports running external services via Docker Compose for enhanced capabilities. Services are managed through a **tool abstraction layer** - the agent never touches `docker-compose` files directly.
 
 ### Example: Self-Hosted Search Server
 
@@ -418,10 +418,10 @@ skills/weather/
 Planned features and improvements:
 
 - [x] **Vector Store Integration** - RAG capabilities with local/embedded vector databases
+- [x] **Docker Compose Integration** - Automatic tool/service orchestration via docker-compose (see [Docker Services](#docker-services) below)
 - [ ] **Plugin System** - External plugins for tools, providers, and skills (installable via uv)
 - [ ] **Messaging Channels** - Telegram, Signal, Matrix, Nostr bridges for chat-based interaction
 - [ ] **Cron & Scheduling** - Scheduled task execution with cron-like syntax (e.g., "run daily at 9 AM")
-- [ ] **Docker Compose Integration** - Automatic tool/service orchestration via docker-compose (see [Docker Services](#docker-services-planned) below)
 - [ ] **More Pre-built Skills** - Email handling, calendar management, research assistants
 - [ ] **Multi-Agent Support** - Coordinate multiple specialized agents for complex tasks
 - [ ] **CLI Improvements** - Better interactive mode, history, and session management
